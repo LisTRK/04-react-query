@@ -1,7 +1,7 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import SearchBar from "../SearchBar/SearchBar";
-import { use, useState } from "react";
-import fetchSearch from "../services/movieService";
+import { useState } from "react";
+import fetchSearch from "../../services/movieServices";
 import MovieGrid from "../MovieGrid/MovieGrid";
 import ReactPaginate from "react-paginate";
 import css from "./App.module.css";
@@ -9,12 +9,12 @@ import Loader from "../Loader/Loader";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import toast, { Toaster } from "react-hot-toast";
 import MovieModal from "../MovieModal/MovieModal";
-import { Movie } from "../../types/movie";
+import type { Movie } from "../../types/movie";
+
 
 function App() {
     const [query, setQuery] = useState("");
     const [page, setPage] = useState(1);
-    const [isOpenModal, setIsOpenModal] = useState(false);
     const [movie, setMovie] = useState<Movie|null>();
      
     const {isError, isLoading, data, isSuccess } = useQuery({
@@ -43,7 +43,7 @@ function App() {
     
     return <>
         <SearchBar onSubmit={handleSearchSubmit}/>
-        {isSuccess&& <ReactPaginate
+        {!isSuccess&&data?.total_results&& <ReactPaginate
         pageCount={data?.total_pages??0}
         pageRangeDisplayed={5}
         marginPagesDisplayed={1}
@@ -58,8 +58,8 @@ function App() {
         
         {isLoading && <Loader />}
         {isError&& <ErrorMessage/>}
-        {data?.results && <MovieGrid onSelect={(movie: Movie) => { setIsOpenModal(true); setMovie(movie) }} movies={data.results} />}
-        {!!movie&&<MovieModal movie={movie} onClose={()=>{setIsOpenModal(false); setMovie(null)} }/>}
+        {data?.results && <MovieGrid onSelect={(movie: Movie) => { setMovie(movie) }} movies={data.results} />}
+        {!!movie&&<MovieModal movie={movie} onClose={()=>{ setMovie(null)} }/>}
         <Toaster/>
     </>;
 };
