@@ -1,6 +1,7 @@
 import { Formik, Form, type FormikHelpers, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import styles from './SearchBar.module.css';
+import toast from 'react-hot-toast';
 
 interface SearchBarProps{
     onSubmit: (query: string) => void,
@@ -14,7 +15,7 @@ const SignupSchema = Yup.object().shape({
    query: Yup.string()
      .min(2, 'Too Short!')
      .max(50, 'Too Long!')
-     .required('Required'),
+     .required(()=>{toast.error("Please enter your search query")}),
  });
 
 
