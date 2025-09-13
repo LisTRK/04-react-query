@@ -1,7 +1,7 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import SearchBar from "../SearchBar/SearchBar";
 import { useState } from "react";
-import fetchSearch from "../../services/movieServices";
+import fetchSearch from "../../services/movieService";
 import MovieGrid from "../MovieGrid/MovieGrid";
 import ReactPaginate from "react-paginate";
 import css from "./App.module.css";
