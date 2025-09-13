@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import type { Movie } from "../../types/movie";
 import css from "./MovieModal.module.css";
 
@@ -6,8 +7,29 @@ interface MovieModalProps{
     onClose:()=>void
 }
 
-const MovieModal = ({movie, onClose}: MovieModalProps) => {
-    return <div className={css.backdrop} role="dialog" aria-modal="true">
+const MovieModal = ({ movie, onClose }: MovieModalProps) => {
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) onClose();
+  };
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                onClose();
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+        document.body.style.overflow = "hidden";
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+            document.body.style.overflow = "";
+        };
+
+     }, [onClose]);
+
+    return <div onClick={handleClick} className={css.backdrop} role="dialog" aria-modal="true">
   <div className={css.modal}>
     <button onClick={onClose} className={css.closeButton} aria-label="Close modal">
       &times;

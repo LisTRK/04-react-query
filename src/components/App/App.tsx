@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import SearchBar from "../SearchBar/SearchBar";
-import { useState } from "react";
+import { use, useState } from "react";
 import fetchSearch from "../services/movieService";
 import MovieGrid from "../MovieGrid/MovieGrid";
 import ReactPaginate from "react-paginate";
@@ -8,15 +8,20 @@ import css from "./App.module.css";
 import Loader from "../Loader/Loader";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import toast, { Toaster } from "react-hot-toast";
+import MovieModal from "../MovieModal/MovieModal";
+import { Movie } from "../../types/movie";
 
 function App() {
     const [query, setQuery] = useState("");
     const [page, setPage] = useState(1);
+    const [isOpenModal, setIsOpenModal] = useState(false);
+    const [movie, setMovie] = useState<Movie|null>();
      
-    const {isError, isLoading, data } = useQuery({
+    const {isError, isLoading, data, isSuccess } = useQuery({
         queryKey: ['query', query, page],
         queryFn: () => getFetchSearch(query, page),
         enabled: !!query,
+        placeholderData: keepPreviousData
     });
 
     const getFetchSearch = async(query: string, page: number) => {
@@ -38,7 +43,7 @@ function App() {
     
     return <>
         <SearchBar onSubmit={handleSearchSubmit}/>
-        {data?.total_pages&&!!data.results.length&& <ReactPaginate
+        {isSuccess&& <ReactPaginate
         pageCount={data?.total_pages??0}
         pageRangeDisplayed={5}
         marginPagesDisplayed={1}
@@ -48,11 +53,13 @@ function App() {
         activeClassName={css.active}
         nextLabel="→"
         previousLabel="←"
+        renderOnZeroPageCount={null}
         />}
         
         {isLoading && <Loader />}
         {isError&& <ErrorMessage/>}
-        {data?.results&& <MovieGrid onSelect={()=>{}} movies={data.results}/>}
+        {data?.results && <MovieGrid onSelect={(movie: Movie) => { setIsOpenModal(true); setMovie(movie) }} movies={data.results} />}
+        {!!movie&&<MovieModal movie={movie} onClose={()=>{setIsOpenModal(false); setMovie(null)} }/>}
         <Toaster/>
     </>;
 };
